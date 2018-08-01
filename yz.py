@@ -1,20 +1,28 @@
 # -*- coding:utf-8 -*-
-import pymysql
+# import pymysql
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.select import Select
 import importlib,sys
 
 
-#解析专业那里还有个问题
-importlib.reload(sys)
+# importlib.reload(sys)  #PY3
 
-conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='123456', db='yzw', charset='utf8')
-cursor = conn.cursor()
+reload(sys) #PY2
+sys.setdefaultencoding("utf-8")
+#解析专业那里还有个问题
+
+
+# conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='123456', db='yzw', charset='utf8')
+# cursor = conn.cursor()
 
 
 def parse(url):
-        # url = response.url
-        browser = webdriver.PhantomJS(executable_path='D:\\phantomjs-2.1.1\\bin\\phantomjs.exe')
+        # browser = webdriver.PhantomJS()#executable_path='D:\\phantomjs-2.1.1\\bin\\phantomjs.exe'
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-gpu')
+        browser = webdriver.Chrome(chrome_options=chrome_options,executable_path="/Applications/Google Chrome.app/Contents/MacOS/chromedriver")
         browser.get(url)
         # time.sleep(1)
         # print(browser.page_source)
@@ -103,7 +111,11 @@ def parse_school(browser,chid):
 
 #解析学校专业
 def parse_subject1(url,chid,school_id):
-        browser = webdriver.PhantomJS(executable_path='D:\\phantomjs-2.1.1\\bin\\phantomjs.exe')
+        # browser = webdriver.PhantomJS()#executable_path='D:\\phantomjs-2.1.1\\bin\\phantomjs.exe'
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-gpu')
+        browser = webdriver.Chrome(chrome_options=chrome_options,executable_path="/Applications/Google Chrome.app/Contents/MacOS/chromedriver")
         browser.get(url)
         for item in browser.find_elements_by_xpath('/html/body/div[2]/div[3]/div/div[2]/table/tbody/tr'):
             subject=item.text
