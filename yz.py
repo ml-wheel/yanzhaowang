@@ -102,7 +102,7 @@ def parse_school(browser,chid):
             print(school_name+" "+school_feature)
             # 获取学校详细的专业信息，用不着翻页，直接传url
             url = item.find_element_by_tag_name('a').get_property("href")
-            parse_subject1(url,chid,school_id)
+            yield parse_subject(url,chid,school_id)
         #处理翻页
         try:
             # print(browser.find_element_by_xpath('/html/body/div[2]/div[3]/div/div[4]/ul/li[7]/a').get_property('onclick'))
@@ -112,7 +112,7 @@ def parse_school(browser,chid):
             print("已到达最后一页!")
 
 #解析学校专业
-def parse_subject1(url,chid,school_id):
+def parse_subject(url,chid,school_id):
         # browser = webdriver.PhantomJS()#executable_path='D:\\phantomjs-2.1.1\\bin\\phantomjs.exe'
         chrome_options = Options()
         chrome_options.add_argument('--headless')
@@ -120,23 +120,33 @@ def parse_subject1(url,chid,school_id):
         browser = webdriver.Chrome(chrome_options=chrome_options,executable_path="/Applications/Google Chrome.app/Contents/MacOS/chromedriver")
         browser.get(url)
         for item in browser.find_elements_by_xpath('/html/body/div[2]/div[3]/div/div[2]/table/tbody/tr'):
-            subject=item.text
-            subjectInfo = subject.split(' ')
+            tds = item.find_elements_by_tag_name('td')
             #院系所
-            yxs = subjectInfo[0]
+            yxs=tds[0].text
             #专业
-            zy =  subjectInfo[1]
+            zy=tds[1].text
             #研究方向
-            fx = subjectInfo[2]
-            # 学习方式
-            fs = subjectInfo[3]
-            element = item.find_element_by_class_name("js-from-title").get_attribute('title')
-            print(element.text)
+            yjfx=tds[2].text
+            #学习方式
+            xxfs=tds[3].text
+            #指导教师
+            zdls=tds[4].text
+            #拟招生人数
+            stuCount=tds[5].find_element_by_tag_name('a').get_attribute('title')
+            #考试范围
+            examScopeUrl=tds[6].find_element_by_tag_name('a').get_attribute('href')
 
-
-            print(chid+":"+school_id+":"+subject)
+            yield parse_scope()
             #操蛋
 
+#解析考试范围
+def parse_scope(chid,school_id,examScopeUrl):
+    chrome_options = Options()
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--disable-gpu')
+    browser = webdriver.Chrome(chrome_options=chrome_options,
+                               executable_path="/Applications/Google Chrome.app/Contents/MacOS/chromedriver")
+    browser.get(examScopeUrl)
 
 if __name__ == "__main__":
         parse("http://yz.chsi.com.cn/zsml/queryAction.do")
