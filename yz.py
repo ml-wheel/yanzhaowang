@@ -16,6 +16,24 @@ sys.setdefaultencoding("utf-8")
 # conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='123456', db='yzw', charset='utf8')
 # cursor = conn.cursor()
 
+# 学科类别存库
+# def save_db(id, name):
+#         try:
+#             sql = "insert into ch_info values(" + id + ",'" + name.encode("utf-8") + "')"
+#             cursor.execute(sql)
+#             conn.commit()
+#         except Exception as e:
+#             print(str(e))
+
+     #学校类别存库
+# def save_db(id, name,provinceid,province,feature):
+#         try:
+#             sql = "insert into school_info values(" + id + ",'" + name + "'+,"+provinceid+",'"+province+"','"+feature+"')"
+#             cursor.execute(sql)
+#             conn.commit()
+#         except Exception as e:
+#             print(str(e))
+
 
 def parse(url):
         # browser = webdriver.PhantomJS()#executable_path='D:\\phantomjs-2.1.1\\bin\\phantomjs.exe'
@@ -27,7 +45,7 @@ def parse(url):
         # time.sleep(1)
         # print(browser.page_source)
         for id in get_ch_info(browser):
-            print("============id;"+id+"==============")
+            print("============id:"+id+"==============")
             #单独调试专业
             # if id!='0351':
             #     continue
@@ -62,23 +80,7 @@ def get_ch_info(browser):
             # self.save_db(ch_id,ch_name)
         return ch_list
 
-    # 学科类别存库
-def save_db(id, name):
-        try:
-            sql = "insert into ch_info values(" + id + ",'" + name.encode("utf-8") + "')"
-            cursor.execute(sql)
-            conn.commit()
-        except Exception as e:
-            print(str(e))
 
-     #学校类别存库
-def save_db(id, name,provinceid,province,feature):
-        try:
-            sql = "insert into school_info values(" + id + ",'" + name + "'+,"+provinceid+",'"+province+"','"+feature+"')"
-            cursor.execute(sql)
-            conn.commit()
-        except Exception as e:
-            print(str(e))
 
 
     #解析学校
@@ -119,6 +121,19 @@ def parse_subject1(url,chid,school_id):
         browser.get(url)
         for item in browser.find_elements_by_xpath('/html/body/div[2]/div[3]/div/div[2]/table/tbody/tr'):
             subject=item.text
+            subjectInfo = subject.split(' ')
+            #院系所
+            yxs = subjectInfo[0]
+            #专业
+            zy =  subjectInfo[1]
+            #研究方向
+            fx = subjectInfo[2]
+            # 学习方式
+            fs = subjectInfo[3]
+            element = item.find_element_by_class_name("js-from-title").get_attribute('title')
+            print(element.text)
+
+
             print(chid+":"+school_id+":"+subject)
             #操蛋
 
