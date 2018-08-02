@@ -121,22 +121,22 @@ def parse_subject(url,chid,school_id):
         browser.get(url)
         for item in browser.find_elements_by_xpath('/html/body/div[2]/div[3]/div/div[2]/table/tbody/tr'):
             tds = item.find_elements_by_tag_name('td')
-            #院系所
-            yxs=tds[0].text
-            #专业
-            zy=tds[1].text
-            #研究方向
-            yjfx=tds[2].text
-            #学习方式
-            xxfs=tds[3].text
-            #指导教师
-            zdls=tds[4].text
-            #拟招生人数
-            stuCount=tds[5].find_element_by_tag_name('a').get_attribute('title')
+            # #院系所
+            # yxs=tds[0].text
+            # #专业
+            # zy=tds[1].text
+            # #研究方向
+            # yjfx=tds[2].text
+            # #学习方式
+            # xxfs=tds[3].text
+            # #指导教师
+            # zdls=tds[4].text
+            # #拟招生人数
+            # stuCount=tds[5].find_element_by_tag_name('a').get_attribute('title')
             #考试范围
             examScopeUrl=tds[6].find_element_by_tag_name('a').get_attribute('href')
 
-            yield parse_scope()
+            yield parse_scope(examScopeUrl)
             #操蛋
 
 #解析考试范围
