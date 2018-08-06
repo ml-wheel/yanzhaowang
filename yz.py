@@ -10,8 +10,12 @@ import importlib, sys
 reload(sys)  # PY2
 sys.setdefaultencoding("utf-8")
 
-
-# 解析专业那里还有个问题
+# 学校
+school_dict = {}
+# 专业
+ch_dicy = {}
+# 考试科目
+exam_dict = {}
 
 
 # conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='123456', db='yzw', charset='utf8')
@@ -35,6 +39,12 @@ sys.setdefaultencoding("utf-8")
 #         except Exception as e:
 #             print(str(e))
 
+''' 获取 ID和名称  (085212)(专业学位)软件工程  ==> {085212 (专业学位)软件工程}'''
+def getIdAndName(name):
+    strs = name.split("(")[1].split(")")
+    id=strs[0]
+    name=strs[1]
+    return id,name
 
 def parse(url):
     # browser = webdriver.PhantomJS()#executable_path='D:\\phantomjs-2.1.1\\bin\\phantomjs.exe'
@@ -98,6 +108,9 @@ def parse_school(browser, chid):
         if len(school.split("\n")[1].split("(")[1].split(")")[1].split(" ")) > 1:
             school_feature = school.split("\n")[1].split("(")[1].split(")")[1].split(" ")[1]
 
+        if not school_dict.has_key(school_id):
+            school_dict[school_id] = {"school_province_id": school_province_id, "school_province": school_province,
+                                      "school_feature": school_feature}
         # 学校信息存库
         # self.save_db(school_id,school_name,school_province_id,school_province,school_feature)
         # print(school_name + " " + school_feature)
@@ -126,8 +139,11 @@ def parse_subject(url, chid, school_id):
         tds = item.find_elements_by_tag_name('td')
         # #院系所
         # yxs=tds[0].text
-        # #专业
-        # zy=tds[1].text
+        #专业
+        zy=tds[1].text
+        zyid,zyname = getIdAndName(zy)
+        if not ch_dicy.has_key(zyid):
+            ch_dicy[zyid]=zyname
         # #研究方向
         # yjfx=tds[2].text
         # #学习方式
@@ -137,11 +153,11 @@ def parse_subject(url, chid, school_id):
         # 考试范围
         examScopeUrl = tds[6].find_element_by_tag_name('a').get_attribute('href')
 
-        parse_scope(chid, school_id, examScopeUrl)
+        parse_scope(zyid, school_id, examScopeUrl)
 
 
 # 解析考试范围
-def parse_scope(chid, school_id, examScopeUrl):
+def parse_scope(zyid, school_id, examScopeUrl):
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--disable-gpu')
@@ -151,20 +167,41 @@ def parse_scope(chid, school_id, examScopeUrl):
     item = browser.find_element_by_xpath('/html/body/div[2]/div[3]/div[1]/div[1]/table/tbody')
     trs = item.find_elements_by_tag_name('tr')
 
-    #招生人数
-    studentsCount=trs[4].find_element_by_class_name('zsml-summary').text
-    #考试范围
+    #拟招生人数
+    studentsCount = trs[4].find_element_by_class_name('zsml-summary').text
+    #招生源
+    resouse = studentsCount.split(",")[0].split("：")[0]
+    #总招人数
+    totalCount = studentsCount.split(",")[0].split("：")[1]
+    #推免人数
+    tmCount = studentsCount.split(",")[1].split("：")[1]
+
+    # 考试范围
     scopes = browser.find_elements_by_xpath('/html/body/div[2]/div[3]/div[1]/div[1]/div/table/tbody')
     for scope in scopes:
         examInfos = scope.find_elements_by_xpath('tr/td')
-        if len(examInfos)!=4:
+        if len(examInfos) != 4:
             continue
-
-
-
-
-
-
+        # 政治
+        zz = examInfos[0].text.split("\n")[0]
+        zzid, name = getIdAndName(zz)
+        if not exam_dict.has_key(zzid):
+            exam_dict[zzid] = name
+        # 英语
+        yy = examInfos[1].text.split("\n")[0]
+        yyid, name = getIdAndName(yy)
+        if not exam_dict.has_key(yyid):
+            exam_dict[yyid] = name
+        # 业务一
+        yw1 = examInfos[2].text.split("\n")[0]
+        yw1id, name = getIdAndName(yw1)
+        if not exam_dict.has_key(yw1id):
+            exam_dict[yw1id] = name
+        # 业务二
+        yw2 = examInfos[3].text.split("\n")[0]
+        yw2id, name = getIdAndName(yw2)
+        if not exam_dict.has_key(yw2id):
+            exam_dict[yw2id] = name
 
 
 if __name__ == "__main__":
